@@ -28,6 +28,7 @@
 #include <SimpleMoveBehaviour.h>
 #include "Behaviours/PlayerBehaviour.h"
 #include "Behaviours/FirstPersonBehaviour.h"
+#include "Behaviours/CoinBehaviour.h"
 
 #include "Utilities/MapManager.h"
 #include "Utilities/Collision2D.h"
@@ -111,6 +112,9 @@ int main() {
 
 		BloomEffect* bloomEffect;
 		bool bloom = false;
+		float bloomdownscale = 2.f;
+		float bloomthreshold = 0.01f;
+		int bloompasses = 10;
 
 		int activeEffect = 0;
 		std::vector<GameObject> effects;
@@ -189,6 +193,18 @@ int main() {
 					activeEffect = 0;
 				else
 					activeEffect = 3;
+			}
+			if (ImGui::CollapsingHeader("Bloom Settings"))
+			{
+				if (ImGui::SliderFloat("Downscale", &bloomdownscale, 0.1f, 10.0f)) {
+					bloomEffect->SetDownscale(bloomdownscale);
+				}
+				if (ImGui::SliderFloat("Threshold", &bloomthreshold, 0.01f, 0.15f)) {
+					bloomEffect->SetThreshold(bloomthreshold);
+				}
+				if (ImGui::SliderInt("Passes", &bloompasses, 1, 100)) {
+					bloomEffect->SetPasses(bloompasses);
+				}
 			}
 			/*if (ImGui::CollapsingHeader("Scene Level Lighting Settings"))
 			{
@@ -337,8 +353,6 @@ int main() {
 		coinMat->Set("u_TextureMix", 0.0f);
 		int coincount = 0;
 
-
-
 		VertexArrayObject::sptr tubestr = ObjLoader::LoadFromFile("models/tubestr.obj");
 		VertexArrayObject::sptr tubelbw = ObjLoader::LoadFromFile("models/tubelbw.obj");
 		VertexArrayObject::sptr tubetee = ObjLoader::LoadFromFile("models/tubetee.obj");
@@ -446,6 +460,7 @@ int main() {
 						auto& coinT = coine.get<Transform>();
 						coinT.SetLocalPosition(coord1, 0, coord2);
 						coinT.SetLocalRotation(90, 0, 90);
+						BehaviourBinding::Bind<CoinBehaviour>(coine);
 						coincount++;
 					}
 				}
